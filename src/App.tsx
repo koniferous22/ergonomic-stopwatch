@@ -24,7 +24,7 @@ const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  grid-area: buttons;
+  grid-area: side;
 `;
 
 const Button = styled.button`
@@ -131,15 +131,15 @@ const shouldRunOffScreenNotification = (state: typeof initialState) => {
   if (!state.working) {
     return false;
   }
-  const workingTimePassed = calculateWorkedTimeFromLastNotification(state);
-  return workingTimePassed >= 1200000;
+  const workingTimeFromLastNotification = calculateWorkedTimeFromLastNotification(state);
+  return workingTimeFromLastNotification >= 1200000;
 }
 
 const AppWrapper = styled.div`
   width: 80%;
   display: grid;
   grid-template:
-    "stopwatch buttons" 300px
+    "stopwatch side" 300px
     "intervals intervals" 50px
     / auto 200px;
   font-family: "Courier New", Courier, monospace;
@@ -189,6 +189,7 @@ const App = () => {
   useEffect(() => {
     state.stopwatchTimer = setInterval(updateTimer, 10);
     state.notificationTimer = setInterval(runNotifications, 20000)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const runNotifications = () => setState((prevState) => {
     if (shouldRunOffScreenNotification(prevState)) {
@@ -202,6 +203,14 @@ const App = () => {
   })
   return (
     <AppWrapper>
+      <Stopwatch time={state.timeElapsed} workedTime={workedTime}/>
+      <IntervalWrapper>
+        {
+          state.intervals.map((interval, index) => (
+            <IntervalSpan key={index} {...interval}/>
+          ))
+        }
+      </IntervalWrapper>
       {
         state.isRunning && (
           <ButtonsWrapper>
@@ -213,14 +222,6 @@ const App = () => {
           </ButtonsWrapper>
         )
       }
-      <Stopwatch time={state.timeElapsed} workedTime={workedTime}/>
-      <IntervalWrapper>
-        {
-          state.intervals.map((interval, index) => (
-            <IntervalSpan key={index} {...interval}/>
-          ))
-        }
-      </IntervalWrapper>
     </AppWrapper>
   );
 }
